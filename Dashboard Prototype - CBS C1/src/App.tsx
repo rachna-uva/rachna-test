@@ -3,6 +3,7 @@ import { HomePage } from './components/HomePage';
 import { SearchResultsPage } from './components/SearchResultsPage';
 import { ArticlePage } from './components/ArticlePage';
 import { NetworkGraphPage } from './components/NetworkGraphPage';
+import { Toaster } from 'sonner@2.0.3';
 
 export default function App() {
   return (
@@ -15,6 +16,7 @@ export default function App() {
           <Route path="/network" element={<NetworkGraphPage />} />
           <Route path="*" element={<HomePage />} />
         </Routes>
+        <Toaster position="top-right" richColors />
       </div>
     </Router>
   );

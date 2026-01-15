@@ -1,6 +1,6 @@
-import { Search, User } from 'lucide-react';
+import { Search, User, Home } from 'lucide-react';
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import cbsLogo from 'figma:asset/7965749448b052296dcdeb2c58f8dddf9a9d91b1.png';
 
 interface HeaderProps {
@@ -10,6 +10,7 @@ interface HeaderProps {
 export function Header({ initialQuery = '' }: HeaderProps) {
   const [searchQuery, setSearchQuery] = useState(initialQuery);
   const navigate = useNavigate();
+  const location = useLocation();
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -18,10 +19,20 @@ export function Header({ initialQuery = '' }: HeaderProps) {
     }
   };
 
+  const isHomePage = location.pathname === '/';
+
   return (
     <header className="bg-white border-b border-gray-200">
       <div className="mx-auto px-20">
         <div className="flex items-center justify-between h-20">
+          {/* Logo - clickable to go home */}
+          <button
+            onClick={() => navigate('/')}
+            className="flex-shrink-0 mr-6 hover:opacity-80 transition-opacity"
+          >
+            <img src={cbsLogo} alt="CBS Logo" className="h-12" />
+          </button>
+
           {/* Search Bar */}
           <form onSubmit={handleSearch} className="flex-1 max-w-2xl">
             <div className="relative">
@@ -36,9 +47,17 @@ export function Header({ initialQuery = '' }: HeaderProps) {
             </div>
           </form>
 
-          {/* CBS Logo and Profile Icon */}
-          <div className="flex items-center gap-4">
-            <img src={cbsLogo} alt="CBS Logo" className="h-12" />
+          {/* Right Side - Back to Overview + Profile */}
+          <div className="flex items-center gap-3 ml-6">
+            {!isHomePage && (
+              <button
+                onClick={() => navigate('/')}
+                className="flex items-center gap-2 px-4 h-10 text-[#0097DB] hover:bg-[#E6F5FC] rounded-lg transition-colors font-medium"
+              >
+                <Home className="w-4 h-4" />
+                Terug naar overzicht
+              </button>
+            )}
             
             {/* Profile Icon */}
             <button className="w-12 h-12 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors">

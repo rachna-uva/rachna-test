@@ -2,8 +2,11 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { Header } from './Header';
 import { Footer } from './Footer';
 import { ImpactBadge } from './ImpactBadge';
+import { MatchExplanation } from './MatchExplanation';
+import { FeedbackWidget } from './FeedbackWidget';
 import { ArrowLeft, Tag, SmilePlus, Minus, Frown } from 'lucide-react';
 import { mockArticles } from '../data/mockData';
+import { useState } from 'react';
 
 export function ArticlePage() {
   const { id } = useParams();
@@ -91,6 +94,27 @@ export function ArticlePage() {
                     </span>
                   ))}
                 </div>
+              </div>
+
+              {/* Match Explanation */}
+              <div className="mt-8">
+                <MatchExplanation
+                  vertrouwensscore={article.vertrouwensscore}
+                  sharedKeywords={article.tags.slice(0, 5)}
+                  dateMatch="Gepubliceerd binnen 24 uur na CBS-artikel"
+                  numericalData={['3.2%', '1.8%', '145.000']}
+                  theme={`${article.category} > ${article.keyThemes[0]}`}
+                  onFeedback={() => {}}
+                />
+              </div>
+
+              {/* Feedback Widget */}
+              <div className="mt-8">
+                <FeedbackWidget
+                  articleId={article.id}
+                  variant="inline"
+                  onSubmit={(feedback) => console.log('Feedback:', feedback)}
+                />
               </div>
             </article>
           </div>

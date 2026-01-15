@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { ChevronRight, Home, X } from 'lucide-react';
 import { filterCategories, filterSources, filterTimeRanges, filterThemes } from '../data/mockData';
 import { parseFiltersFromURL, filtersToURLParams } from '../utils/filterUtils';
+import { EnhancedFiltersComponent, EnhancedFilters } from './EnhancedFilters';
 
 export function FilterSelectionPage() {
   const navigate = useNavigate();
@@ -16,6 +17,15 @@ export function FilterSelectionPage() {
   const [selectedTimeRange, setSelectedTimeRange] = useState(initialFilters.timeRange);
   const [selectedThemes, setSelectedThemes] = useState<string[]>(initialFilters.themes);
   const [minVertrouwensscore, setMinVertrouwensscore] = useState<number | undefined>(initialFilters.minVertrouwensscore);
+
+  // Enhanced filters state
+  const [enhancedFilters, setEnhancedFilters] = useState<EnhancedFilters>({
+    publishers: [],
+    contentType: 'all',
+    citationRange: { min: 0, max: 200 },
+    citationType: 'all',
+    mediaQuality: [],
+  });
 
   const toggleCategory = (category: string) => {
     setSelectedCategories(prev =>
@@ -56,10 +66,9 @@ export function FilterSelectionPage() {
     const query = searchParams.get('q');
     if (query) {
       urlParams.set('q', query);
-      navigate(`/search?${urlParams}`);
-    } else {
-      navigate(`/?${urlParams}`);
     }
+    // Always navigate to /search when applying filters
+    navigate(`/search?${urlParams}`);
   };
 
   const handleClose = () => {
@@ -205,6 +214,12 @@ export function FilterSelectionPage() {
                 </div>
               </div>
             </div>
+
+            {/* Enhanced Filters */}
+            <EnhancedFiltersComponent
+              filters={enhancedFilters}
+              onChange={setEnhancedFilters}
+            />
           </div>
         </div>
 

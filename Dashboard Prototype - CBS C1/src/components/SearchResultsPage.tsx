@@ -4,7 +4,9 @@ import { Header } from './Header';
 import { Footer } from './Footer';
 import { ArticleCard } from './ArticleCard';
 import { FilterSelectionPage } from './FilterSelectionPage';
-import { SlidersHorizontal, X } from 'lucide-react';
+import { PaginationAdvanced } from './PaginationAdvanced';
+import { EnhancedSortDropdown } from './EnhancedSortDropdown';
+import { SlidersHorizontal, X, Home } from 'lucide-react';
 import { mockArticles } from '../data/mockData';
 import { filterArticles, parseFiltersFromURL, getFilterLabels, filtersToURLParams } from '../utils/filterUtils';
 
@@ -13,6 +15,9 @@ export function SearchResultsPage() {
   const [searchParams] = useSearchParams();
   
   const query = searchParams.get('q') || '';
+  const [currentPage, setCurrentPage] = useState(1);
+  const [sortBy, setSortBy] = useState('date-desc');
+  const itemsPerPage = 20;
   
   // Check if filter panel should be shown
   const showFilterPanel = searchParams.get('showFilters') === 'true';
@@ -36,8 +41,41 @@ export function SearchResultsPage() {
       );
     }
     
+    // Apply sorting
+    results = [...results].sort((a, b) => {
+      switch (sortBy) {
+        case 'date-desc':
+          return new Date(b.date).getTime() - new Date(a.date).getTime();
+        case 'date-asc':
+          return new Date(a.date).getTime() - new Date(b.date).getTime();
+        case 'relevance-desc':
+          return b.vertrouwensscore - a.vertrouwensscore;
+        case 'relevance-asc':
+          return a.vertrouwensscore - b.vertrouwensscore;
+        case 'publisher-asc':
+          return a.publisher.localeCompare(b.publisher);
+        case 'citations-desc':
+          return b.citations - a.citations;
+        case 'quality-desc':
+          return b.mediaQuality - a.mediaQuality;
+        default:
+          return 0;
+      }
+    });
+    
     return results;
-  }, [query, currentFilters]);
+  }, [query, currentFilters, sortBy]);
+
+  // Pagination
+  const totalPages = Math.ceil(filteredArticles.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const paginatedArticles = filteredArticles.slice(startIndex, endIndex);
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
   const removeFilter = (label: string) => {
     const newFilters = { ...currentFilters };
@@ -119,28 +157,48 @@ export function SearchResultsPage() {
         <div className="grid grid-cols-12 gap-6">
           {/* Results */}
           <div className="col-span-12">
+            {/* Sort Dropdown */}
+            {filteredArticles.length > 0 && (
+              <div className="flex justify-end mb-4">
+                <EnhancedSortDropdown value={sortBy} onChange={setSortBy} />
+              </div>
+            )}
+
             <div className="bg-white rounded-lg shadow-sm overflow-hidden">
               {filteredArticles.length > 0 ? (
-                <table className="w-full">
-                  <thead className="bg-[#F5F5F5] border-b border-gray-200">
-                    <tr>
-                      <th className="py-3 px-6 text-left text-sm font-semibold text-[#1C3664] w-32">
-                        Datum
-                      </th>
-                      <th className="py-3 px-6 text-left text-sm font-semibold text-[#1C3664]">
-                        Artikel
-                      </th>
-                      <th className="py-3 px-6 text-right text-sm font-semibold text-[#1C3664] w-48">
-                        Vertrouwensscore
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {filteredArticles.map((article) => (
-                      <ArticleCard key={article.id} article={article} />
-                    ))}
-                  </tbody>
-                </table>
+                <>
+                  <table className="w-full">
+                    <thead className="bg-[#F5F5F5] border-b border-gray-200">
+                      <tr>
+                        <th className="py-3 px-6 text-left text-sm font-semibold text-[#1C3664] w-32">
+                          Datum
+                        </th>
+                        <th className="py-3 px-6 text-left text-sm font-semibold text-[#1C3664]">
+                          Artikel
+                        </th>
+                        <th className="py-3 px-6 text-right text-sm font-semibold text-[#1C3664] w-48">
+                          Vertrouwensscore
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {paginatedArticles.map((article) => (
+                        <ArticleCard key={article.id} article={article} />
+                      ))}
+                    </tbody>
+                  </table>
+
+                  {/* Pagination */}
+                  {totalPages > 1 && (
+                    <PaginationAdvanced
+                      currentPage={currentPage}
+                      totalPages={totalPages}
+                      itemsPerPage={itemsPerPage}
+                      totalItems={filteredArticles.length}
+                      onPageChange={handlePageChange}
+                    />
+                  )}
+                </>
               ) : (
                 <div className="py-12 text-center text-gray-500">
                   <p className="text-lg mb-2">Geen artikelen gevonden</p>
