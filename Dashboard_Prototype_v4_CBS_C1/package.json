@@ -1,6 +1,6 @@
 
   {
-      "name": "Dashboard Prototype - CBS C1",
+      "name": "dashboard",
       "version": "0.1.0",
       "private": true,
       "dependencies": {
